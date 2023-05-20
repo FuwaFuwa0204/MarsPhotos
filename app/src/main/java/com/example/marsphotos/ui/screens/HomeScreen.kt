@@ -17,8 +17,10 @@ package com.example.marsphotos.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -33,13 +35,14 @@ import com.example.marsphotos.ui.theme.MarsPhotosTheme
 @Composable
 fun HomeScreen(
     marsUiState: MarsUiState,
+    retryAction: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     //sealed 인터페이스를 사용하여 세 가지 옵션만 있다는 것을 컴파일러에 알린다(이렇게 하면 조건문이 완전해짐).
     when (marsUiState) {
         is MarsUiState.Loading -> LoadingScreen(modifier)
         is MarsUiState.Success -> ResultScreen(marsUiState.photos, modifier)
-        is MarsUiState.Error -> ErrorScreen(modifier)
+        is MarsUiState.Error -> ErrorScreen(retryAction,modifier)
     }
 }
 
@@ -59,12 +62,15 @@ fun LoadingScreen(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun ErrorScreen(modifier: Modifier = Modifier) {
-    Box(
-        contentAlignment = Alignment.Center,
+fun ErrorScreen(retryAction: () -> Unit, modifier: Modifier = Modifier) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.fillMaxSize()
     ) {
         Text(stringResource(R.string.loading_failed))
+        Button(onClick = retryAction) {
+            Text(stringResource(R.string.retry))
+        }
     }
 }
 

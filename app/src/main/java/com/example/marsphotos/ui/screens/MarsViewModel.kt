@@ -28,6 +28,7 @@ import com.example.marsphotos.MarsPhotosApplication
 import com.example.marsphotos.data.DefaultMarsPhotosRepository
 import com.example.marsphotos.data.MarsPhotosRepository
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 import java.io.IOException
 
 sealed interface MarsUiState {
@@ -52,15 +53,20 @@ class MarsViewModel(private val marsPhotosRepository: MarsPhotosRepository) : Vi
      * Gets Mars photos information from the Mars API
      */
     fun getMarsPhotos() {
-        //marsUiState = "Set the Mars API status response here!"
-        //앱 비정상 종료 처리
         viewModelScope.launch {
-           //val listResult = MarsApi.retrofitService.getPhotos()
-            //val marsPhotosRepository = DefaultMarsPhotosRepository()
-            val listResult = marsPhotosRepository.getMarsPhotos()
-                marsUiState = MarsUiState.Success(
+            marsUiState = MarsUiState.Loading
+            marsUiState = try {
+                //val listResult = MarsApi.retrofitService.getPhotos()
+                //레파지토리의 함수를 가져온다
+                val listResult = marsPhotosRepository.getMarsPhotos()
+                MarsUiState.Success(
                     "Success: ${listResult.size} Mars photos retrieved"
                 )
+            } catch (e: IOException) {
+                MarsUiState.Error
+            } catch (e: HttpException) {
+                MarsUiState.Error
+            }
         }
     }
     companion object {
